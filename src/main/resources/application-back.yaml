@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: demo-sharding-jdbc
+  datasource:
+    primary:
+      type: com.alibaba.druid.pool.DruidDataSource
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/test?serverTimezone=GMT&useSSL=false
+      username: root
+      password: 123456
+
+  main:
+    allow-bean-definition-overriding: true
+
+  shardingsphere:
+    datasource:
+      # 配置数据源别名
+      names: t1
+
+      t1:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/test?serverTimezone=GMT&useSSL=false
+        username: root
+        password: 123456
+
+
+    sharding:
+      tables:
+        course: # 要操作的表逻辑名称
+          actual-data-nodes: t1.course_$->{1..2} # 指定表的分布情况
+          table-strategy:
+            inline:
+              sharding-column: id # 分表列
+              algorithm-expression: course_$->{id % 2 + 1} # 分表规则
+          key-generator:
+            column: id # 表组件
+            type: SNOWFLAKE # 组件生成策略
+    props:
+      sql-show: true
+
+mybatis:
+  type-aliases-package: com.example.demo.shardingjdbc.entity
+
+datasource:
+  primary:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/test?serverTimezone=GMT&useSSL=false
+    username: root
+    password: 123456
